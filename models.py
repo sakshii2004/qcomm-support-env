@@ -44,7 +44,8 @@ class QCommSupportAction(Action):
         "issue_resolution"
     ] = Field(..., description="Type of action to perform")
     
-    resolution_type: Optional[Literal[
+    resolution_type: Literal[
+        "none",
         "refund_source",
         "partial_refund",
         "waive_delivery_fees",
@@ -54,7 +55,7 @@ class QCommSupportAction(Action):
         "shadowban",
         "permaban",
         "escalate_to_human"
-    ]] = Field(default=None, description="Specific resolution if action_type is issue_resolution")
+    ] = Field(default="none", description="Specific resolution if action_type is issue_resolution")
 
 
 class QCommSupportState(State):
