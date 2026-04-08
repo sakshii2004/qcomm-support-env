@@ -9,9 +9,9 @@ from client import QcommSupportEnv
 from models import QCommSupportAction
 
 # Mandated Environment Variables
-API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
-MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-7B-Instruct"
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")
+API_KEY = os.getenv("HF_TOKEN")
 
 BENCHMARK = "qcomm_support_env"
 MAX_STEPS = 8
