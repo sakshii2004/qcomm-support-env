@@ -39,20 +39,45 @@ The `QCommSupportAction` requires the agent to call investigation tools before r
 2. **`query_customer_history`**: Reveals tenure and trust metrics.
 3. **`verify_content_evidence`**: Reveals merchant stats and photo labels.
 4. **`issue_resolution`**: Resolves the ticket with a specific type:
-   - `refund_source`, `partial_refund`, `replacement` (Refunds)
+   - `refund_source`, `partial_refund`, `waive_delivery_fees`, `replacement` (Refunds)
    - `reject`, `warn` (Soft Denials)
-   - `permaban` (Hard Denial for fraud)
+   - `shadowban`, `permaban` (Hard Denials for fraud)
    - `escalate_to_human` (Fallback)
+   - `none` (Default / no resolution yet)
 
 ---
 
 ## 📈 Reward Logic
-The reward function is meticulously shaped to encourage investigation and penalize "Profit Leakage":
-- **+0.1**: For each unique investigation tool used.
-- **+0.7**: For matching the "Correct Resolution" (Ground Truth).
-- **-0.05**: For redundant tool calls (Inefficiency penalty).
-- **-0.5**: For resolving without at least 2 investigation steps (Guessing penalty).
-- **-1.0**: For issuing a refund in a clear Fraud Scenario (Critical Failure).
+The reward function uses a **graduated, family-based** system to encourage thorough investigation and penalize profit leakage:
+
+### Investigation Rewards
+- **+0.1**: For each **unique** investigation tool used (max 3 tools × 0.1 = 0.3).
+- **-0.05**: For **redundant** tool calls (calling the same tool twice).
+
+### Resolution Accuracy
+- **+0.7**: **Exact match** with the correct resolution.
+- **+0.4**: **Family match** — resolution is in the same logical family (see below).
+- **+0.0**: Wrong family.
+
+### Investigation Depth (applied at resolution time)
+- **-0.3**: Resolving with **0** investigation tools (pure guess).
+- **-0.1**: Resolving with only **1** investigation tool (minimal effort).
+- **+0.0**: Resolving with **2** tools (acceptable).
+- **+0.1**: Resolving with all **3** tools (thorough investigation bonus).
+
+### Security Lockdown
+- **-1.0**: Issuing any refund (`refund_source`, `partial_refund`, `replacement`) in a **confirmed fraud scenario**. This overrides all other rewards.
+
+### Resolution Families
+Resolutions within the same family receive partial credit (+0.4 instead of +0.7):
+
+| Correct Answer | Accepted Family Members |
+| :--- | :--- |
+| `refund_source` | `partial_refund` |
+| `partial_refund` | `refund_source` |
+| `replacement` | *(exact match only)* |
+| `reject` | `warn` |
+| `permaban` | `shadowban` |
 
 ---
 
@@ -88,6 +113,8 @@ The environment includes 5 standardized tasks with increasing difficulty:
 3. **Run the baseline inference**:
    ```bash
    export HF_TOKEN="your_token"
+   export API_BASE_URL="https://router.huggingface.co/v1"
+   export MODEL_NAME="Qwen/Qwen2.5-7B-Instruct"
    python inference.py
    ```
 

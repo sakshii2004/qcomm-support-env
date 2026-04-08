@@ -1,7 +1,6 @@
 import os
 import json
 import asyncio
-import time
 import textwrap
 from typing import List, Optional
 
@@ -11,7 +10,7 @@ from models import QCommSupportAction
 
 # Mandated Environment Variables
 API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
-MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
+MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-7B-Instruct"
 API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
 
 BENCHMARK = "qcomm_support_env"
@@ -177,9 +176,6 @@ def main():
     with QcommSupportEnv(base_url="http://127.0.0.1:8000").sync() as env:
         # Run 5 tasks as defined in the environment
         for i in range(5):
-            if i > 0:
-                print(f"[WAIT] Pausing 60s before task {i+1} to avoid rate limits...", flush=True)
-                time.sleep(60)
             asyncio.run(run_episode(env, i, client))
 
 if __name__ == "__main__":
