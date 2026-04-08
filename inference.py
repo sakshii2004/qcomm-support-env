@@ -166,7 +166,8 @@ async def run_episode(env, episode_idx: int, client: OpenAI):
             log_step(step, action_str, 0.0, True, error_msg)
             done = True
 
-    final_score = max(0.0, min(1.0, sum(rewards)))
+    # Clamp to strict (0, 1) — validator rejects 0.0 and 1.0
+    final_score = max(0.01, min(0.99, sum(rewards)))
     success = (final_score >= 0.7) 
     log_end(success, step, final_score, rewards)
 
