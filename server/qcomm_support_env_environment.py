@@ -226,7 +226,7 @@ class QcommSupportEnvironment(Environment):
             # Security Lockdown: Profit Leakage is a total failure
             is_fraud_scenario = (not self._state.actual_truth_status)
             if is_fraud_scenario and action.resolution_type in ["refund_source", "replacement", "partial_refund"]:
-                obs.reward = -1.0 
+                obs.reward = -0.5
             
         return obs
 
